@@ -1,9 +1,8 @@
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/index/");
-webSocket.onmessage = function (msg) { receiveMessage(msg); };
+webSocket.onmessage = function (msg) { updateChannelList(msg); };
 webSocket.onclose = function () { alert("WebSocket connection closed") };
 
-var userName = setUserName("Please enter your username:");
-
+setUserName()
 id("newChannelButton").addEventListener("click", function () {
     var channel = prompt("Wpisz nazwę kanału: ");
     if (channel !== '' && channel !== null) {
@@ -14,25 +13,6 @@ id("newChannelButton").addEventListener("click", function () {
 function sendMessage(message) {
     if (message !== "") {
         webSocket.send(message);
-    }
-}
-
-function checkUserExists(data) {
-    data.usernames.forEach(function (other) {
-        if (getCookie("username") === other) {
-            setUserName(other + "is not available username. Please enter other username: ");
-        }
-    })
-}
-function receiveMessage(msg) {
-    var data = JSON.parse(msg.data);
-    var type = data.type;
-
-    if (type === "usernames"); {
-        checkUserExists(data);
-    }
-    if (type == "channels") {
-        updateChannelList(msg);
     }
 }
 
@@ -52,12 +32,11 @@ function id(id) {
     return document.getElementById(id);
 }
 
-function setUserName(promptMsg) {
+function setUserName() {
     var user = getCookie("username");
     if (user === "") {
-        user = prompt(promptMsg, "username");
+        user = prompt("Please enter your username: ", "username");
         if (user != "" && user != null) {
-            sendMessage("username:" + user);
             setCookie("username", user);
         }
     }

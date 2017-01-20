@@ -50,12 +50,14 @@ function updateChat(msg) {
     insert("chat", data.message);
     id("userlist").innerHTML = "";
     data.userlist.forEach(function (user) {
-        if (user === getCookie("username")) {
-            insert("userlist", "<b><li>" + user + "</li></b>")
-        } else {
+        if (user !== getCookie("username")) {
             insert("userlist", "<li>" + user + "</li>");
         }
-    });
+    })
+
+    insert("userlist", "<b><li>" + getCookie("username") + "</li></b>");
+
+    ;
 }
 
 function insert(targetId, message) {

@@ -60,8 +60,7 @@ public class Chat {
             channels.forEach(ch -> channelsJSON.add(createHtmlLinkToChannel(ch.getName())));
 
             user.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("channels", channelsJSON)
-                    .put("type", "channels")));
+                    .put("channels", channelsJSON)));
 
         } catch (IOException | JSONException e) {
             e.printStackTrace();
