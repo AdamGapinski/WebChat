@@ -16,16 +16,21 @@ import org.json.JSONObject;
 
 @WebSocket
 public class ChannelSocketHandler {
+    private Chat chat;
+
+    public ChannelSocketHandler(Chat chat) {
+        this.chat = chat;
+    }
 
     @OnWebSocketClose
     public void onClose(Session user, int statusCode, String reason) {
-        Channel channel = Chat.userChannelMap.get(user);
+        Channel channel = chat.getUserChannelMap().get(user);
         User removedUser = channel.removeUser(user);
 
-        Chat.broadcastMessageToUserChannel(user, "Server",
+        chat.broadcastMessageToUserChannel(user, "Server",
                 String.format("%s has left the channel.", removedUser.username));
 
-        Chat.userChannelMap.remove(user);
+        chat.getUserChannelMap().remove(user);
     }
 
     @OnWebSocketMessage
@@ -39,7 +44,7 @@ public class ChannelSocketHandler {
             switch (type) {
                 case "message":
                     String text = jsonMessage.getString("text");
-                    Chat.broadcastMessageToUserChannel(user, username, text);
+                    chat.broadcastMessageToUserChannel(user, username, text);
                     break;
 
                 case "channeluser" :
@@ -56,13 +61,13 @@ public class ChannelSocketHandler {
     }
 
     private void addToChannel(Session user, String username, String channel) {
-        Chat.channels.stream()
+        chat.getChannels().stream()
                 .filter(c -> c.getName().equals(channel))
                 .findAny()
                 .ifPresent(ch -> {
                     ch.addUser(user, username);
-                    Chat.userChannelMap.put(user, ch);
-                    Chat.broadcastMessageToUserChannel(user, "Server",
+                    chat.getUserChannelMap().put(user, ch);
+                    chat.broadcastMessageToUserChannel(user, "Server",
                             String.format("%s has joined the channel.", username));
                 });
     }

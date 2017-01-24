@@ -13,7 +13,11 @@ public class Channel {
     private final List<User> users = new CopyOnWriteArrayList<>();
 
     public Channel(String name) {
-        this.name = name;
+        if (name == null || name.equals("")) {
+            this.name = "unnamed";
+        } else {
+            this.name = name;
+        }
     }
 
     public void addUser(Session user, String username) {

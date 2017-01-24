@@ -17,44 +17,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static j2html.TagCreator.*;
-import static spark.Spark.*;
 
 /**
  * @author Adam Gapiński
  */
 public class Chat {
-    public final static List<Channel> channels = new CopyOnWriteArrayList<>();
-    public final static List<Session> channelMenuUsers = new CopyOnWriteArrayList<>();
-    public final static Map<Session, Channel> userChannelMap = new ConcurrentHashMap<>();
+    private List<Channel> channels = new CopyOnWriteArrayList<>();
+    private List<Session> channelMenuUsers = new CopyOnWriteArrayList<>();
+    private Map<Session, Channel> userChannelMap = new ConcurrentHashMap<>();
 
-    public static void main(String[] args) {
-        webSocket("/index", ChatMenuSocketHandler.class);
-        webSocket("/channel", ChannelSocketHandler.class);
-        setStaticFileLocation();
-        channels.add(new Channel("Chatbot"));
-
-        init();
-    }
-    private static void setStaticFileLocation() {
-        String projectDir;
-        if ((projectDir = System.getProperty("user.dir")).contains("IdeaProjects")) {
-            String staticDir = "/src/main/resources/public";
-            externalStaticFileLocation(projectDir + staticDir);
-        } else {
-            staticFileLocation("/public");
-        }
-    }
-
-    public static void broadcastChannelList(String newChannel) {
-        if (newChannel != null) {
-            channels.add(new Channel(newChannel));
-        }
+    public void broadcastChannelList() {
         channelMenuUsers.stream()
                 .filter(Session::isOpen)
-                .forEach(Chat::sendChannelList);
+                .forEach(this::sendChannelList);
     }
 
-    public static void sendChannelList(Session user) {
+    public void sendChannelList(Session user) {
         try {
             List<String> channelsJSON = new ArrayList<>();
             channels.forEach(ch -> channelsJSON.add(createHtmlLinkToChannel(ch.getName())));
@@ -67,7 +45,7 @@ public class Chat {
         }
     }
 
-    public static void broadcastMessageToUserChannel(Session user, String sender, String message) {
+    public void broadcastMessageToUserChannel(Session user, String sender, String message) {
         Channel channel = userChannelMap.get(user);
 
         List<User> users = channel.getUsers();
@@ -96,7 +74,7 @@ public class Chat {
         }
     }
 
-    private static String createHtmlMessageFromSender(String sender, String message) {
+    private String createHtmlMessageFromSender(String sender, String message) {
         ContainerTag result = article();
 
         if (sender.toLowerCase().equals("server")) {
@@ -110,9 +88,21 @@ public class Chat {
         ).render();
     }
 
-    private static String createHtmlLinkToChannel(String channel) {
+    private String createHtmlLinkToChannel(String channel) {
         String innerHTML = article().with(p(channel)).render();
 
         return String.format("<a class=nostyle href=\"/channel.html?channel=%s\">%s</a>", channel, innerHTML);
+    }
+
+    public List<Channel> getChannels() {
+        return channels;
+    }
+
+    public List<Session> getChannelMenuUsers() {
+        return channelMenuUsers;
+    }
+
+    public Map<Session, Channel> getUserChannelMap() {
+        return userChannelMap;
     }
 }

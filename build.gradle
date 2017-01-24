@@ -25,15 +25,14 @@ dependencies {
     compile 'com.google.guava:guava:20.0'
 
     // Spark
-    compile "com.sparkjava:spark-core:2.5"
+    compile "com.sparkjava:spark-core:2.5.4"
 
     compile "org.slf4j:slf4j-simple:1.7.22"
     compile "com.j2html:j2html:0.7"
     compile "com.sparkjava:spark-template-velocity:2.3"
-    compile 'org.bitpipeline.lib:owm-lib:2.1.3-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.8.0'
 
-    // Use JUnit test framework
+            // Use JUnit test framework
     testCompile 'junit:junit:4.12'
 }
 
