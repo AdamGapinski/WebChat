@@ -49,7 +49,7 @@ function updateChat(msg) {
     var data = JSON.parse(msg.data);
     insert("chat", data.message);
     id("userlist").innerHTML = "";
-    data.userlist.forEach(function (user) {
+    new Set(data.userlist).forEach(function (user) {
         if (user !== getCookie("username")) {
             insert("userlist", "<li>" + user + "</li>");
         }
