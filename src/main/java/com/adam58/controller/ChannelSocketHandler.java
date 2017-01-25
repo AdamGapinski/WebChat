@@ -53,7 +53,6 @@ public class ChannelSocketHandler {
                     break;
             }
 
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

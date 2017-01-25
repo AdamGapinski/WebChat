@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Adam Gapiński
@@ -23,7 +21,7 @@ public class Chatbot {
         Question question;
         try {
             question = parseQuestion(questionString);
-        } catch (QuestionNotDefinedException e) {
+        } catch (Question.QuestionNotDefinedException e) {
             return "I can't understand question.";
         }
 
@@ -89,7 +87,7 @@ public class Chatbot {
         return word.substring(0,1).toUpperCase() + word.substring(1, word.length()).toLowerCase();
     }
 
-    private Question parseQuestion(String questionString) throws QuestionNotDefinedException {
+    private Question parseQuestion(String questionString) throws Question.QuestionNotDefinedException {
         return Arrays.stream(Question.values())
                 .filter(question -> question.questionPatterns
                         .stream()
@@ -97,21 +95,7 @@ public class Chatbot {
                                 pattern.equals(questionString.endsWith("?") ?
                                         questionString.toLowerCase() : questionString.toLowerCase() + "?")))
                 .findAny()
-                .orElseThrow(QuestionNotDefinedException::new);
+                .orElseThrow(Question.QuestionNotDefinedException::new);
     }
-
 }
-enum Question {
-    TIME(Arrays.asList("która godzina?", "ktora godzina?")),
-    WEEKDAY(Arrays.asList("jaki dziś dzień tygodnia?", "jaki dzis dzien tygodnia?")),
-    WEATHER(Collections.singletonList("jaka jest pogoda w krakowie?"));
 
-    final List<String> questionPatterns;
-
-    Question(List<String> question) {
-        this.questionPatterns = question;
-    }
-
-}
-class QuestionNotDefinedException extends Exception {
-}
