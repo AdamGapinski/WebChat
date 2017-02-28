@@ -1,7 +1,6 @@
 package com.adam58.controller;
 
 import com.adam58.View.IChatMenuView;
-import com.adam58.model.Channel;
 import com.adam58.model.IChatMenu;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -26,7 +25,7 @@ public class ChatMenuController {
         this.chatMenuView = chatMenuView;
 
         /*
-        * ChatMenuView is registered as listener for changes in channel, therefore it can
+        * ChatMenuView is registered as listener for changes in channel model, therefore it can
         * change presented view for users.
         * */
         this.chatMenu.registerChannelsListener(this.chatMenuView);
@@ -52,10 +51,10 @@ public class ChatMenuController {
     }
 
     /*
-    * On web socket message event, controller delegates channel creation to ChatMenu model.
+    * On web socket message, chat menu model adds new channel name.
     * */
     @OnWebSocketMessage
-    public void onMessage(String message) {
-        chatMenu.addChannel(new Channel(message));
+    public void onMessage(String channelName) {
+        chatMenu.addNewChannelName(channelName);
     }
 }
