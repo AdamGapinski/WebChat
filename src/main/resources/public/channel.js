@@ -1,13 +1,11 @@
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/channel");
 webSocket.onmessage = function (msg) { updateChat(msg); };
-webSocket.onopen = function () { sendMessage(saveToChannelJson()) }
-
+webSocket.onopen = function () { sendMessage(saveToChannelJson()) };
 
 id("send").addEventListener("click", function () {
     sendMessage(userMessageToJson(id("message").value));
     id("message").value = "";
 });
-
 
 id("leavechannel").addEventListener("click", function () {
     webSocket.close();
@@ -27,7 +25,7 @@ function userMessageToJson(message) {
             type : "message",
             username : getCookie("username"),
             channel : getParameterByName("channel"),
-            text : message,
+            content : message,
             datetime : Date.now()
         }
     }
@@ -35,7 +33,7 @@ function userMessageToJson(message) {
 
 function saveToChannelJson() {
     return {
-        type: "channeluser",
+        type: "connection",
         channel : getParameterByName("channel"),
         username : getCookie("username")
     }
@@ -53,11 +51,9 @@ function updateChat(msg) {
         if (user !== getCookie("username")) {
             insert("userlist", "<li>" + user + "</li>");
         }
-    })
+    });
 
     insert("userlist", "<b><li>" + getCookie("username") + "</li></b>");
-
-    ;
 }
 
 function insert(targetId, message) {
