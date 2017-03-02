@@ -13,6 +13,7 @@ public interface IChannel {
     List<String> getUserNames();
 
     boolean addMessage(Message message);
+    List<Message> getMessages(int count, int lastMessageNumToGet);
     void registerMessageListener(IMessageListener listener);
     void removeMessageListener(IMessageListener listener);
 }
