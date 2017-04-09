@@ -6,7 +6,7 @@ import java.util.List;
  * @author Adam Gapiński
  */
 public interface IChatMenu {
-    boolean addNewChannelName(String channelName);
+    void addChannel(IChannel channel);
     List<String> getChannelNames();
     void registerChannelsListener(IChannelsListener listener);
     void removeChannelsListener(IChannelsListener listener);
