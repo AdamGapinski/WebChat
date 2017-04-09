@@ -1,12 +1,18 @@
 package com.adam58.controller;
 
+import com.adam58.View.ChatMenuView;
 import com.adam58.View.IChatMenuView;
+import com.adam58.model.Channel;
+import com.adam58.model.ChatMenu;
 import com.adam58.model.IChatMenu;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Adam Gapiński
@@ -17,44 +23,35 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 @WebSocket
 public class ChatMenuController {
-    private IChatMenu chatMenu;
-    private IChatMenuView chatMenuView;
-
-    public ChatMenuController(IChatMenu chatMenu, IChatMenuView chatMenuView) {
-        this.chatMenu = chatMenu;
-        this.chatMenuView = chatMenuView;
-
-        /*
-        * ChatMenuView is registered as listener for changes in channel model, therefore it can
-        * change presented view for users.
-        * */
-        this.chatMenu.registerChannelsListener(this.chatMenuView);
-    }
+    private IChatMenu chatMenu = new ChatMenu();
+    private Map<Session, IChatMenuView> views = new ConcurrentHashMap<>();
 
     /*
-    * On web socket connect, controller add session to view, so session will receive view and any
-    * changes made to it.
+    * On web socket connect event, user session is associated with view object, so the user will
+    * receive new channels added by other users.
     * */
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        chatMenuView.addSession(session);
-        chatMenuView.showChannelsList(chatMenu.getChannelNames(), session);
+        IChatMenuView view = new ChatMenuView(session);
+
+        views.put(session, view);
+        chatMenu.registerChannelsListener(view);
+
+        view.showChannelsList(chatMenu.getChannelNames());
     }
 
     /*
-    * On web socket close event, controller removes the user session from view, so it will no longer receive
-    * changes.
+    * On web socket close, associated with the given session, view is removed from views and unregistered
+    * from channel model channels listeners.
     * */
     @OnWebSocketClose
-    public void onClose(Session session) {
-        chatMenuView.removeSession(session);
+    public void onClose(Session session, int statusCode, String reason) {
+        chatMenu.removeChannelsListener(views.get(session));
+        views.remove(session);
     }
 
-    /*
-    * On web socket message, chat menu model adds new channel name.
-    * */
     @OnWebSocketMessage
     public void onMessage(String channelName) {
-        chatMenu.addNewChannelName(channelName);
+        chatMenu.addChannel(new Channel(channelName));
     }
 }
