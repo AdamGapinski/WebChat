@@ -10,14 +10,13 @@ import spark.Spark;
  */
 public class Main {
     public static void main(String[] args) {
-        Chat chat = new Chat();
-
         /*
         * webSocket method registers java class to handle javascript web socket requests. Web socket
         * is accessible at given url path
         * */
-        Spark.webSocket("/index", new ChatMenuSocketHandler(chat));
-        Spark.webSocket("/channel", new ChannelSocketHandler(chat));
+        Spark.webSocket("/index", new ChatMenuController());
+        Spark.webSocket("/channel", new ChannelSocketController());
+
         setStaticFileLocation();
 
         Spark.init();
