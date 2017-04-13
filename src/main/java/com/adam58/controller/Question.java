@@ -1,16 +1,15 @@
 package com.adam58.controller;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Adam Gapiński
  */
 enum Question {
-    TIME(Arrays.asList("która godzina?", "ktora godzina?")),
-    WEEKDAY(Arrays.asList("jaki dziś dzień tygodnia?", "jaki dzis dzien tygodnia?")),
-    WEATHER(Collections.singletonList("jaka jest pogoda w krakowie?"));
+    TIME(Arrays.asList("What time is it?", "time")),
+    WEEKDAY(Arrays.asList("What is the day of week?", "day of week")),
+    WEATHER(Arrays.asList("How is the weather?", "What is the weather like?", "weather"));
 
     final List<String> questionPatterns;
 

@@ -4,7 +4,7 @@ webSocket.onclose = function () { alert("WebSocket connection closed") };
 
 setUserName()
 id("newChannelButton").addEventListener("click", function () {
-    var channel = prompt("Wpisz nazwę kanału: ");
+    var channel = prompt("Type channel name: ");
     if (channel !== '' && channel !== null) {
         sendMessage(channel);
     }
@@ -18,7 +18,6 @@ function sendMessage(message) {
 
 function updateChannelList(msg) {
     var data = JSON.parse(msg.data);
-    id("channels").innerHTML = "";
     data.channels.forEach(function (channel) {
         insert("channels", channel);
     });
