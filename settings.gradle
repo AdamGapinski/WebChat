@@ -15,4 +15,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'WebChat_Lab10'
+rootProject.name = 'WebChat'

@@ -1,3 +1,5 @@
+/*websocketDemo.js file modified. See README.rst*/
+
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/channel");
 webSocket.onmessage = function (msg) { updateChat(msg); };
 webSocket.onopen = function () { sendMessage(saveToChannelJson()) };
@@ -20,7 +22,7 @@ id("message").addEventListener("keypress", function (e) {
 });
 
 function userMessageToJson(message) {
-    if (message !== "" && message !== null) {
+    if (message !== null && message !== "") {
         return {
             type : "message",
             username : getCookie("username"),
@@ -28,6 +30,8 @@ function userMessageToJson(message) {
             content : message,
             datetime : Date.now()
         }
+    } else {
+        return null;
     }
 }
 
@@ -40,7 +44,9 @@ function saveToChannelJson() {
 }
 
 function sendMessage(message) {
-    webSocket.send(JSON.stringify(message));
+    if (message !== null && message !== "") {
+        webSocket.send(JSON.stringify(message));
+    }
 }
 
 function updateChat(msg) {

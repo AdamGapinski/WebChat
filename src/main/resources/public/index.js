@@ -1,3 +1,5 @@
+/*websocketDemo.js file modified. See README.rst*/
+
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/index/");
 webSocket.onmessage = function (msg) { updateChannelList(msg); };
 webSocket.onclose = function () { alert("WebSocket connection closed") };
