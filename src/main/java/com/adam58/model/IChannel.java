@@ -7,7 +7,6 @@ import java.util.List;
  */
 public interface IChannel {
     String getChannelName();
-
     void addMessage(Message message);
     List<Message> getMessages(int count, int lastMessageNumToGet);
     void registerMessageListener(IMessageListener listener);
