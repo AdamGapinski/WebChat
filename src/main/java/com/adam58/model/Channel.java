@@ -30,17 +30,10 @@ public class Channel implements IChannel {
     }
 
     @Override
-    public List<Message> getMessages(int from, int count) {
-        // TODO: 03.03.17 Check and avoid sublist index out of bound exception
-        return messages;
-        /*if (from < 0) {
-            from = 0;
-        } else if (from >= )
-        if (from + count > messages.size()) {
-            count = 0;
-        }
-
-        return messages.subList(from, from + count);*/
+    public List<Message> getMessages(int count, int lastMessageNumToGet) {
+        int toIndex = messages.size() - lastMessageNumToGet;
+        int fromIndex = toIndex - count;
+        return messages.subList(fromIndex < 0 ? 0 : fromIndex, toIndex < 0 ? 0 : toIndex);
     }
 
     @Override
