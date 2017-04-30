@@ -6,8 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static j2html.TagCreator.article;
 import static j2html.TagCreator.p;
@@ -24,11 +25,9 @@ public class ChatMenuView implements IChatMenuView {
 
     @Override
     public void receiveChannel(IChannel channel) {
-        List<String> channelList = new ArrayList<>();
-        channelList.add(createHtmlLinkToChannel(channel.getChannelName()));
         try {
             session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("channels", channelList)));
+                    .put("channels", Collections.singleton(createHtmlLinkToChannel(channel.getChannelName())))));
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
@@ -36,12 +35,10 @@ public class ChatMenuView implements IChatMenuView {
     @Override
     public void showChannelsList(List<String> channels) {
         try {
-            List<String> channelsJSON = new ArrayList<>();
-            channels.forEach(channelName -> channelsJSON.add(createHtmlLinkToChannel(channelName)));
-
             session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("channels", channelsJSON)));
-
+                    .put("channels", channels.stream()
+                            .map(this::createHtmlLinkToChannel)
+                            .collect(Collectors.toList()))));
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

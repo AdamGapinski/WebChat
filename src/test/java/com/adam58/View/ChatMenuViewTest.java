@@ -47,6 +47,8 @@ public class ChatMenuViewTest {
             String sent = captor.getValue();
 
             assertThat(sent, allOf(containsString("channels"),
+                    containsString("{"),
+                    containsString("}"),
                     containsString("href="),
                     containsString("/channel.html?"),
                     containsString(String.format("channel=%s", channelName))));
@@ -62,6 +64,8 @@ public class ChatMenuViewTest {
         String sent = captor.getValue();
 
         assertThat(sent, allOf(containsString("channels"),
+                containsString("{"),
+                containsString("}"),
                 containsString("href="),
                 containsString("/channel.html?")));
         channelNames.forEach(channelName -> {
