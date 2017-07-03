@@ -1,7 +1,7 @@
 package com.adam58.controller;
 
-import com.adam58.View.ChatMenuView;
-import com.adam58.View.IChatMenuView;
+import com.adam58.view.ChatMenuView;
+import com.adam58.view.IChatMenuView;
 import com.adam58.model.Channel;
 import com.adam58.model.ChatMenu;
 import com.adam58.model.IChatMenu;

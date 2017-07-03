@@ -1,4 +1,4 @@
-package com.adam58.View;
+package com.adam58.view;
 
 import com.adam58.model.Message;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;

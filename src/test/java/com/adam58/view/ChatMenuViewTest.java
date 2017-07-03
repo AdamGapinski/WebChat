@@ -1,4 +1,4 @@
-package com.adam58.View;
+package com.adam58.view;
 
 import com.adam58.model.Channel;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -68,8 +68,6 @@ public class ChatMenuViewTest {
                 containsString("}"),
                 containsString("href="),
                 containsString("/channel.html?")));
-        channelNames.forEach(channelName -> {
-            assertThat(sent, containsString(String.format("channel=%s", channelName)));
-        });
+        channelNames.forEach(channelName -> assertThat(sent, containsString(String.format("channel=%s", channelName))));
     }
 }

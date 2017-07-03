@@ -11,7 +11,7 @@ import spark.Spark;
 public class Main {
     public static void main(String[] args) {
         /*
-        * webSocket method registers java class to handle javascript web socket requests. Web socket
+        * Spark.webSocket method registers objects to handle javascript web socket requests. Web socket
         * is accessible at given url path
         * */
         Spark.webSocket("/index", new ChatMenuController());

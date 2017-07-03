@@ -1,4 +1,4 @@
-package com.adam58.View;
+package com.adam58.view;
 
 import com.adam58.model.Message;
 import j2html.tags.ContainerTag;
@@ -18,7 +18,7 @@ import static j2html.TagCreator.*;
  * @author Adam Gapiński
  *
  * ChannelView class is responsible for presenting channel data (like messages) to users. Using session interface
- * it sends html, which then is inserted to page by javascript.
+ * it sends html, which then is inserted to page using javascript.
  */
 public class ChannelView implements IChannelView {
     private Session session;

@@ -1,4 +1,4 @@
-package com.adam58.View;
+package com.adam58.view;
 
 import com.adam58.model.IChannel;
 import org.eclipse.jetty.websocket.api.Session;

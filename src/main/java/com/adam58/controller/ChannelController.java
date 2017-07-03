@@ -1,7 +1,7 @@
 package com.adam58.controller;
 
-import com.adam58.View.ChannelView;
-import com.adam58.View.IChannelView;
+import com.adam58.view.ChannelView;
+import com.adam58.view.IChannelView;
 import com.adam58.model.Channel;
 import com.adam58.model.IChannel;
 import com.adam58.model.Message;
