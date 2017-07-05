@@ -26,7 +26,7 @@ public class Channel implements IChannel {
     @Override
     public void addMessage(Message message) {
         messages.add(message);
-        messageListeners.forEach(listener -> listener.receiveMessage(message));
+        messageListeners.forEach(listener -> listener.notifyNewMessage(message));
     }
 
     @Override
