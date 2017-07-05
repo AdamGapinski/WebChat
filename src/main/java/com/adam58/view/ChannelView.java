@@ -8,9 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static j2html.TagCreator.*;
 
@@ -28,43 +26,53 @@ public class ChannelView implements IChannelView {
     }
 
     @Override
-    public void receiveMessage(Message message) {
-        try {
-            session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("message", createHtmlMessageFromSender(message.getSender(), message.getContent()))
-                    .put("userlist", new ArrayList<>())// TODO: 03.03.17 user list
-            ));
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+    public void notifyNewMessage(Message message) {
+        sendMessageToClient(message);
     }
 
     @Override
     public void showMessages(List<Message> messages) {
-        messages.forEach(message -> {
-            try {
-                session.getRemote().sendString(String.valueOf(new JSONObject()
-                                .put("message", createHtmlMessageFromSender(message.getSender(), message.getContent()))
-                                .put("userlist", new ArrayList<>())
-                        ));
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        messages.forEach(this::sendMessageToClient);
     }
 
-    private String createHtmlMessageFromSender(String sender, String message) {
+    private void sendMessageToClient(Message message) {
+        Map<String, String> messageData = new HashMap<>();
+        messageData.put("type", "message");
+        messageData.put("message", createHtmlMessage(message));
+        sendDataToClient(messageData);
+    }
+
+    private String createHtmlMessage(Message message) {
         ContainerTag result = article();
 
-        if (sender.toLowerCase().equals("server")) {
+        if (message.getSender().toLowerCase().equals("server")) {
             result.withId("serversender");
         }
 
-        // TODO: 03.03.17 Message timestamp should be get from the message object
         return result.with(
-                b(sender + " says:"),
-                p(message),
-                span().withClass("timestamp").withText(new SimpleDateFormat("HH:mm:ss").format(new Date()))
+                b(message.getSender() + " says:"),
+                p(message.getContent()),
+                span().withClass("timestamp")
+                        .withText(new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(message.getDatetime()))
         ).render();
+    }
+
+    private void sendDataToClient(Map<String, String> data) {
+        JSONObject jsonObject = new JSONObject();
+        data.forEach((key, value) -> {
+            try {
+                jsonObject.put(key, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+
+        try {
+            if (session.isOpen() && !data.isEmpty()) {
+                session.getRemote().sendString(String.valueOf(jsonObject));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

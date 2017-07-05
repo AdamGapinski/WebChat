@@ -2,12 +2,12 @@ package com.adam58.controller;
 
 import com.adam58.model.Message;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,25 +22,6 @@ public class ChannelSocketController {
     private Map<Session, IChannelController> controllersBySession = new ConcurrentHashMap<>();
     private Map<String, IChannelController> controllersByName = new ConcurrentHashMap<>();
 
-    @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason) {
-        IChannelController controller = controllersBySession.remove(session);
-        controller.closeConnection(session);
-
-        removeIfRedundant(controller);
-    }
-
-    private void removeIfRedundant(IChannelController controller) {
-        /*
-        * If the channel controller does not have any more connections, then there is no need to
-        * keep it' s reference in controllersByName map.
-        * The reference is removed from controllersBySession in each call of onClose method.
-        * */
-        if (!controller.hasAnyConnections()) {
-            controllersByName.remove(controller.getChannelName());
-        }
-    }
-
     @OnWebSocketMessage
     public void onMessage(Session user, String message) {
         switch (getValueFromStringJson(message, "type")) {
@@ -51,14 +32,19 @@ public class ChannelSocketController {
                 //This type of message means that, a new connection to webSocket has been made.
                 handleConnection(user, message);
                 break;
+            case "closed":
+                handleClosed(user);
+                break;
         }
     }
 
-    private void broadcastMessage(Session user, String message) {
-        String sender = getValueFromStringJson(message, "username");
-        String content = getValueFromStringJson(message, "content");
+    private void broadcastMessage(Session user, String jsonMessage) {
+        String sender = getValueFromStringJson(jsonMessage, "username");
+        String content = getValueFromStringJson(jsonMessage, "content");
+        String datetime = getValueFromStringJson(jsonMessage, "datetime");
 
-        controllersBySession.get(user).broadcastMessage(new Message(sender, content));
+        Message message = new Message(sender, content, new Date(Long.valueOf(datetime)));
+        controllersBySession.get(user).broadcastMessage(message);
     }
 
     private void handleConnection(Session session, String message) {
@@ -73,6 +59,19 @@ public class ChannelSocketController {
 
         channelController.handleConnection(session, username);
         controllersBySession.put(session, channelController);
+    }
+
+    private void handleClosed(Session session) {
+        IChannelController controller = controllersBySession.remove(session);
+        controller.closeConnection(session);
+        /*
+        * If the channel controller does not have any more connections, then there is no need to
+        * keep it' s reference in controllersByName map.
+        * The reference is removed from controllersBySession in each call of onClose method.
+        * */
+        if (!controller.hasAnyConnections()) {
+            controllersByName.remove(controller.getChannelName());
+        }
     }
 
     private String getValueFromStringJson(String json, String varName) {

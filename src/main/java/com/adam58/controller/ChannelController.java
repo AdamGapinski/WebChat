@@ -1,13 +1,14 @@
 package com.adam58.controller;
 
-import com.adam58.view.ChannelView;
-import com.adam58.view.IChannelView;
 import com.adam58.model.Channel;
 import com.adam58.model.IChannel;
 import com.adam58.model.Message;
 import com.adam58.model.User;
+import com.adam58.view.ChannelView;
+import com.adam58.view.IChannelView;
 import org.eclipse.jetty.websocket.api.Session;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,7 +52,7 @@ public class ChannelController implements IChannelController {
         }
     }
 
-    public ChannelController(String channelName) {
+    ChannelController(String channelName) {
         channelModel = new Channel(channelName);
     }
 
@@ -74,8 +75,10 @@ public class ChannelController implements IChannelController {
         User model = findUserModel(username);
         UserModelView userModelView = new UserModelView(model);
 
-        this.broadcastMessage(new Message("Server",
-                String.format("User %s has joined the channel.", username)));
+        Message message = new Message("Server",
+                String.format("User %s has joined the channel.", username),
+                new Date());
+        this.broadcastMessage(message);
 
         return userModelView;
     }
@@ -102,8 +105,10 @@ public class ChannelController implements IChannelController {
 
     private void userHasLeftTheChannel(User user) {
         users.remove(user.getUsername());
-        this.broadcastMessage(new Message("Server",
-                String.format("User %s has left the channel.", user.getUsername())));
+        Message message = new Message("Server",
+                String.format("User %s has left the channel.", user.getUsername()),
+                new Date());
+        this.broadcastMessage(message);
     }
 
     @Override
