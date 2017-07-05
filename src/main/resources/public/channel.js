@@ -1,69 +1,88 @@
-/*websocketDemo.js file modified. See README.rst*/
-
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/channel");
-webSocket.onmessage = function (msg) { updateChat(msg); };
-webSocket.onopen = function () { sendMessage(saveToChannelJson()) };
+webSocket.onmessage = handleServerMessage;
+webSocket.onopen = handleClientConnection;
+webSocket.onclose = handleClientClosed;
+setEventsHandlers();
 
-id("send").addEventListener("click", function () {
-    sendMessage(userMessageToJson(id("message").value));
-    id("message").value = "";
-});
-
-id("leavechannel").addEventListener("click", function () {
-    webSocket.close();
-    window.location.replace("http://" + location.hostname + ":" + location.port);
-});
-
-id("message").addEventListener("keypress", function (e) {
-    if (e.keyCode === 13) {
-        sendMessage(userMessageToJson(e.target.value));
-        id("message").value = "";
-    }
-});
-
-function userMessageToJson(message) {
-    if (message !== null && message !== "") {
-        return {
-            type : "message",
-            username : getCookie("username"),
-            channel : getParameterByName("channel"),
-            content : message,
-            datetime : Date.now()
-        }
-    } else {
-        return null;
+function handleServerMessage (message) {
+    var messageDataJson = JSON.parse(message.data);
+    switch (messageDataJson.type) {
+        case "message":
+            showMessage(messageDataJson);
+            break;
+        case "userJoined":
+            showUser(messageDataJson);
+            break;
+        case "userLeft":
+            removeUser(messageDataJson);
     }
 }
 
-function saveToChannelJson() {
-    return {
+function handleClientConnection () {
+    sendObjectToServer({
         type: "connection",
         channel : getParameterByName("channel"),
         username : getCookie("username")
+    })
+}
+
+function handleClientClosed() {
+    sendObjectToServer({
+        type: "closed",
+        channel : getParameterByName("channel"),
+        username : getCookie("username")
+    })
+}
+
+function showMessage(data) {
+    id("chat").insertAdjacentHTML("afterbegin", data.message);
+}
+
+function showUser(data) {
+    if (data.currentUser === true) {
+        id("userlist").insertAdjacentHTML("afterbegin", "<li><b>" + data.username + "</b></li>");
+    } else {
+        id("userlist").insertAdjacentHTML("beforeend", "<li>" + data.username + "</li>");
     }
 }
 
-function sendMessage(message) {
+function removeUser(data) {
+    id("userlist").innerHTML.replace("<li>" + data.username + "</li>", "");
+}
+
+function sendMessageToServer(message) {
     if (message !== null && message !== "") {
-        webSocket.send(JSON.stringify(message));
+        var jsonMessage = {
+            type: "message",
+            username: getCookie("username"),
+            channel: getParameterByName("channel"),
+            content: message,
+            datetime: Date.now()
+        };
+        sendObjectToServer(jsonMessage);
+        id("message").value = "";
     }
 }
 
-function updateChat(msg) {
-    var data = JSON.parse(msg.data);
-    insert("chat", data.message);
-    id("userlist").innerHTML = "";
-    new Set(data.userlist).forEach(function (user) {
-        if (user !== getCookie("username")) {
-            insert("userlist", "<li>" + user + "</li>");
-        }
+function sendObjectToServer(object) {
+    webSocket.send(JSON.stringify(object))
+}
+
+function setEventsHandlers() {
+    id("send").addEventListener("click", function () {
+        sendMessageToServer(id("message").value);
     });
 
-    insert("userlist", "<b><li>" + getCookie("username") + "</li></b>");
-}
+    id("leavechannel").addEventListener("click", function () {
+        webSocket.close();
+        window.location.replace("http://" + location.hostname + ":" + location.port);
+    });
 
-function insert(targetId, message) {
-    id(targetId).insertAdjacentHTML("afterbegin", message);
+    id("message").addEventListener("keypress", function (e) {
+        if (e.keyCode === 13) {
+            sendMessageToServer(e.target.value);
+        }
+    });
 }
 
 function id(id) {
@@ -86,7 +105,7 @@ function getCookie(cookieName) {
 }
 
 function getParameterByName(name) {
-    url = window.location.href;
+    var url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
