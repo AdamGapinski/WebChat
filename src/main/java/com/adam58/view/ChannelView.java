@@ -1,6 +1,7 @@
 package com.adam58.view;
 
 import com.adam58.model.Message;
+import com.adam58.model.User;
 import j2html.tags.ContainerTag;
 import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONException;
@@ -8,7 +9,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static j2html.TagCreator.*;
 
@@ -55,6 +58,26 @@ public class ChannelView implements IChannelView {
                 span().withClass("timestamp")
                         .withText(new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(message.getDatetime()))
         ).render();
+    }
+
+    @Override
+    public void updateUserList(User user, boolean joined, boolean currentUser) {
+        Map<String, String> userData = new HashMap<>();
+        userData.put("type", joined ? "userJoined" : "userLeft");
+        userData.put("username", user.getUsername());
+        userData.put("currentUser", String.valueOf(currentUser));
+        sendDataToClient(userData);
+    }
+
+    @Override
+    public void showUserList(List<String> usersNames) {
+        usersNames.forEach(username -> {
+            Map<String, String> userData = new HashMap<>();
+            userData.put("type", "userJoined");
+            userData.put("username", username);
+            userData.put("currentUser", "false");
+            sendDataToClient(userData);
+        });
     }
 
     private void sendDataToClient(Map<String, String> data) {

@@ -11,4 +11,7 @@ public interface IChannel {
     List<Message> getMessages(int count, int lastMessageNumToGet);
     void registerMessageListener(IMessageListener listener);
     void removeMessageListener(IMessageListener listener);
+    List<String> getUserNames();
+    void joinUser(User model);
+    void removeUser(User user);
 }

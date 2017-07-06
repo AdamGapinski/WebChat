@@ -9,6 +9,7 @@ import com.adam58.view.IChannelView;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,8 +65,12 @@ public class ChannelController implements IChannelController {
 
         IChannelView channelView = userModelView.createView(session);
 
-        //Show last 20 messages to the user.
+        //Show last 20 messages to the user and update user list
         channelView.showMessages(channelModel.getMessages(20, 0));
+        List<String> otherUserNames = channelModel.getUserNames();
+        otherUserNames.remove(userModelView.model.getUsername());
+        channelView.showUserList(otherUserNames);
+        channelView.updateUserList(userModelView.model, true, true);
 
         //User will receive new messages through the channelView.
         channelModel.registerMessageListener(channelView);
@@ -73,6 +78,10 @@ public class ChannelController implements IChannelController {
 
     private UserModelView newUserHasJoined(String username) {
         User model = findUserModel(username);
+        channelModel.joinUser(model);
+        userModelViewMap.values()
+                .forEach(userModelView -> userModelView.views.values()
+                        .forEach(iChannelView -> iChannelView.updateUserList(model, true, false)));
         UserModelView userModelView = new UserModelView(model);
 
         Message message = new Message("Server",
@@ -104,6 +113,10 @@ public class ChannelController implements IChannelController {
     }
 
     private void userHasLeftTheChannel(User user) {
+        channelModel.removeUser(user);
+        userModelViewMap.values()
+                .forEach(userModelView -> userModelView.views.values()
+                        .forEach(iChannelView -> iChannelView.updateUserList(user, false, false)));
         users.remove(user.getUsername());
         Message message = new Message("Server",
                 String.format("User %s has left the channel.", user.getUsername()),

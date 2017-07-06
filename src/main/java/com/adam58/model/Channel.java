@@ -1,5 +1,6 @@
 package com.adam58.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -13,6 +14,7 @@ public class Channel implements IChannel {
     private String channelName;
     private List<IMessageListener> messageListeners = new CopyOnWriteArrayList<>();
     private List<Message> messages = new CopyOnWriteArrayList<>();
+    private List<User> users = new CopyOnWriteArrayList<>();
 
     public Channel(String channelName) {
         this.channelName = channelName;
@@ -44,6 +46,23 @@ public class Channel implements IChannel {
     @Override
     public void removeMessageListener(IMessageListener listener) {
         messageListeners.remove(listener);
+    }
+
+    @Override
+    public List<String> getUserNames() {
+        List<String> userNames = new ArrayList<>();
+        users.forEach(user -> userNames.add(user.getUsername()));
+        return userNames;
+    }
+
+    @Override
+    public void joinUser(User user) {
+        users.add(user);
+    }
+
+    @Override
+    public void removeUser(User user) {
+        users.remove(user);
     }
 }
 

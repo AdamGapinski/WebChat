@@ -30,15 +30,16 @@ function showMessage(data) {
 }
 
 function showUser(data) {
-    if (data.currentUser === true) {
-        id("userlist").insertAdjacentHTML("afterbegin", "<li><b>" + data.username + "</b></li>");
+    if (data.currentUser == "true") {
+        id("userlist").insertAdjacentHTML("afterbegin", "<b><li>" + data.username + "</li></b>");
     } else {
         id("userlist").insertAdjacentHTML("beforeend", "<li>" + data.username + "</li>");
     }
 }
 
 function removeUser(data) {
-    id("userlist").innerHTML.replace("<li>" + data.username + "</li>", "");
+    var userList = id("userlist").innerHTML;
+    id("userlist").innerHTML = userList.replace("<li>" + data.username + "</li>", "");
 }
 
 function sendMessageToServer(message) {
