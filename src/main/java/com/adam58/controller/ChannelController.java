@@ -11,7 +11,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * @author Adam Gapiński
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChannelController implements IChannelController {
     private IChannel channelModel;
-
+    private ScheduledExecutorService userLeftService = Executors.newScheduledThreadPool(1);
     /*
     * userModelViewMap is mapping sessions to UserModelView, so it is possible to easily obtain all user session-view pairs and
     * model by having only Session object. This allows us to determine whether user is online - has any views.
@@ -41,6 +41,7 @@ public class ChannelController implements IChannelController {
     private class UserModelView {
         private Map<Session, IChannelView> views = new ConcurrentHashMap<>();
         private User model;
+        private Future userLeftServiceFuture;
 
         private UserModelView(User model) {
             this.model = model;
@@ -107,21 +108,32 @@ public class ChannelController implements IChannelController {
         //View will be no longer registered as a message listener in channelModel.
         channelModel.removeMessageListener(view);
 
-        if (userModelView.views.size() == 0) {
-            userHasLeftTheChannel(userModelView.model);
+        /*
+        * If user has no more views, then server schedules userHasLeftChannel method with 3 seconds delay,
+        * but it happens only when it has not been already scheduled or if so, then it is rescheduled with
+        * new 3 seconds delay.
+        * */
+        if (userModelView.views.size() == 0 &&
+                (userModelView.userLeftServiceFuture == null ||
+                        userModelView.userLeftServiceFuture.cancel(false))) {
+            userModelView.userLeftServiceFuture = userLeftService.schedule(() -> userHasLeftChannel(userModelView),
+                    3, TimeUnit.SECONDS);
         }
     }
 
-    private void userHasLeftTheChannel(User user) {
-        channelModel.removeUser(user);
-        userModelViewMap.values()
-                .forEach(userModelView -> userModelView.views.values()
-                        .forEach(iChannelView -> iChannelView.updateUserList(user, false, false)));
-        users.remove(user.getUsername());
-        Message message = new Message("Server",
-                String.format("User %s has left the channel.", user.getUsername()),
-                new Date());
-        this.broadcastMessage(message);
+    private void userHasLeftChannel(UserModelView modelView) {
+        if (modelView.views.size() == 0) {
+            User user = modelView.model;
+            channelModel.removeUser(user);
+            userModelViewMap.values()
+                    .forEach(userModelView -> userModelView.views.values()
+                            .forEach(iChannelView -> iChannelView.updateUserList(user, false, false)));
+            users.remove(user.getUsername());
+            Message message = new Message("Server",
+                    String.format("User %s has left the channel.", user.getUsername()),
+                    new Date());
+            this.broadcastMessage(message);
+        }
     }
 
     @Override
