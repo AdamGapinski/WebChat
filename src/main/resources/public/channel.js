@@ -1,7 +1,6 @@
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/channel");
 webSocket.onmessage = handleServerMessage;
 webSocket.onopen = handleClientConnection;
-webSocket.onclose = handleClientClosed;
 setEventsHandlers();
 
 function handleServerMessage (message) {
@@ -21,14 +20,6 @@ function handleServerMessage (message) {
 function handleClientConnection () {
     sendObjectToServer({
         type: "connection",
-        channel : getParameterByName("channel"),
-        username : getCookie("username")
-    })
-}
-
-function handleClientClosed() {
-    sendObjectToServer({
-        type: "closed",
         channel : getParameterByName("channel"),
         username : getCookie("username")
     })
@@ -74,7 +65,12 @@ function setEventsHandlers() {
     });
 
     id("leavechannel").addEventListener("click", function () {
-        webSocket.close();
+        sendObjectToServer({
+            type: "closed",
+            channel : getParameterByName("channel"),
+            username : getCookie("username")
+        });
+        webSocket.close(1000);
         window.location.replace("http://" + location.hostname + ":" + location.port);
     });
 

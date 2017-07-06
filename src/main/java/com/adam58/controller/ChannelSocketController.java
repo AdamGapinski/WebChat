@@ -2,6 +2,7 @@ package com.adam58.controller;
 
 import com.adam58.model.Message;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONException;
@@ -32,9 +33,20 @@ public class ChannelSocketController {
                 //This type of message means that, a new connection to webSocket has been made.
                 handleConnection(user, message);
                 break;
-            case "closed":
-                handleClosed(user);
-                break;
+        }
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        IChannelController controller = controllersBySession.remove(session);
+        controller.closeConnection(session);
+        /*
+        * If the channel controller does not have any more connections, then there is no need to
+        * keep it' s reference in controllersByName map.
+        * The reference is removed from controllersBySession in each call of onClose method.
+        * */
+        if (!controller.hasAnyConnections()) {
+            controllersByName.remove(controller.getChannelName());
         }
     }
 
@@ -59,19 +71,6 @@ public class ChannelSocketController {
 
         channelController.handleConnection(session, username);
         controllersBySession.put(session, channelController);
-    }
-
-    private void handleClosed(Session session) {
-        IChannelController controller = controllersBySession.remove(session);
-        controller.closeConnection(session);
-        /*
-        * If the channel controller does not have any more connections, then there is no need to
-        * keep it' s reference in controllersByName map.
-        * The reference is removed from controllersBySession in each call of onClose method.
-        * */
-        if (!controller.hasAnyConnections()) {
-            controllersByName.remove(controller.getChannelName());
-        }
     }
 
     private String getValueFromStringJson(String json, String varName) {
