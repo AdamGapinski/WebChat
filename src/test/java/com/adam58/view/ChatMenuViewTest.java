@@ -11,8 +11,7 @@ import org.mockito.Captor;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -31,6 +30,7 @@ public class ChatMenuViewTest {
         remote = mock(RemoteEndpoint.class);
         Session mockSession = mock(Session.class);
         when(mockSession.getRemote()).thenReturn(remote);
+        when(mockSession.isOpen()).thenReturn(true);
         view = new ChatMenuView(mockSession);
         captor = ArgumentCaptor.forClass(String.class);
     }
@@ -46,8 +46,7 @@ public class ChatMenuViewTest {
             verify(remote, times(channelIndex + 1)).sendString(captor.capture());
             String sent = captor.getValue();
 
-            assertThat(sent, allOf(containsString("channels"),
-                    containsString("{"),
+            assertThat(sent, allOf(containsString("{"),
                     containsString("}"),
                     containsString("href="),
                     containsString("/channel.html?"),
@@ -60,14 +59,16 @@ public class ChatMenuViewTest {
         List<String> channelNames = Arrays.asList("Test", "Sport", "Programming");
         view.showChannelsList(channelNames);
 
-        verify(remote, times(1)).sendString(captor.capture());
-        String sent = captor.getValue();
-
-        assertThat(sent, allOf(containsString("channels"),
-                containsString("{"),
-                containsString("}"),
-                containsString("href="),
-                containsString("/channel.html?")));
-        channelNames.forEach(channelName -> assertThat(sent, containsString(String.format("channel=%s", channelName))));
+        verify(remote, times(3)).sendString(captor.capture());
+        List<String> sentChannels = captor.getAllValues();
+        sentChannels.forEach(sent -> {
+            assertThat(sent, allOf(containsString("{"),
+                    containsString("}"),
+                    containsString("href="),
+                    containsString("/channel.html?")));
+            assertThat(sent, anyOf(containsString("Test"),
+                    containsString("Sport"),
+                    containsString("Programming")));
+        });
     }
 }

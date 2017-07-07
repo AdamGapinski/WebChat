@@ -1,7 +1,7 @@
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/channel");
 webSocket.onmessage = handleServerMessage;
 webSocket.onopen = handleClientConnection;
-setEventsHandlers();
+setEventHandlers();
 
 function handleServerMessage (message) {
     var messageDataJson = JSON.parse(message.data);
@@ -60,7 +60,7 @@ function sendObjectToServer(object) {
     webSocket.send(JSON.stringify(object))
 }
 
-function setEventsHandlers() {
+function setEventHandlers() {
     id("send").addEventListener("click", function () {
         sendMessageToServer(id("message").value);
     });

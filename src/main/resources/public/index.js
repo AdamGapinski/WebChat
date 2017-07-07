@@ -1,52 +1,41 @@
-/*websocketDemo.js file modified. See README.rst*/
-
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/index/");
-webSocket.onmessage = function (msg) { updateChannelList(msg); };
-webSocket.onclose = function () { alert("WebSocket connection closed") };
+webSocket.onmessage = handleServerMessage;
+webSocket.onopen = promptUsername;
+setEventHandlers();
 
-setUserName()
-id("newChannelButton").addEventListener("click", function () {
-    var channel = prompt("Type channel name: ");
-    if (channel !== '' && channel !== null) {
-        sendMessage(channel);
-    }
-});
-
-function sendMessage(message) {
-    if (message !== "") {
-        webSocket.send(message);
+function handleServerMessage(message) {
+    var messageDataJson = JSON.parse(message.data);
+    switch (messageDataJson.type) {
+        case "channel":
+            showChannel(messageDataJson);
+            break;
     }
 }
 
-function updateChannelList(msg) {
-    var data = JSON.parse(msg.data);
-    data.channels.forEach(function (channel) {
-        insert("channels", channel);
+function showChannel(data) {
+    id("channels").insertAdjacentHTML("afterbegin", data.content);
+}
+
+function promptUsername() {
+    var user = getCookie("username");
+    while (user == null || user === "") {
+        user = prompt("Please enter your username: ", "username");
+    }
+    setCookie("username", user);
+    id("username").insertAdjacentHTML("afterbegin", "<b>" + user + "</b>");
+}
+
+function setEventHandlers() {
+    id("newChannelButton").addEventListener("click", function () {
+        var channel = prompt("Type channel name: ");
+        if (channel != null && channel != "") {
+            webSocket.send(channel)
+        }
     });
-}
-
-function insert(targetId, message) {
-    id(targetId).insertAdjacentHTML("afterbegin", message);
 }
 
 function id(id) {
     return document.getElementById(id);
-}
-
-function setUserName() {
-    var user = getCookie("username");
-    if (user === "") {
-        user = prompt("Please enter your username: ", "username");
-        if (user != "" && user != null) {
-            setCookie("username", user);
-        }
-    }
-    insert("username", "<b>" + user + "</b>");
-    return user;
-}
-
-function setCookie(name, value) {
-    document.cookie = name + "=" + value;
 }
 
 function getCookie(cookieName) {
@@ -64,3 +53,6 @@ function getCookie(cookieName) {
     return "";
 }
 
+function setCookie(name, value) {
+    document.cookie = name + "=" + value;
+}

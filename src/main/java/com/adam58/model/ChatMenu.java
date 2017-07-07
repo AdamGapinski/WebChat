@@ -21,7 +21,6 @@ public class ChatMenu implements IChatMenu {
     public List<String> getChannelNames() {
         List<String> result = new ArrayList<>();
         channels.forEach(iChannel -> result.add(iChannel.getChannelName()));
-
         return result;
     }
 
@@ -36,8 +35,6 @@ public class ChatMenu implements IChatMenu {
     }
 
     private void notifyAboutNewChannel(IChannel channel) {
-        channelsListeners.forEach(iChannelsListener -> {
-            iChannelsListener.receiveChannel(channel);
-        });
+        channelsListeners.forEach(iChannelsListener -> iChannelsListener.receiveChannel(channel));
     }
 }

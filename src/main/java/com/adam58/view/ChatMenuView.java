@@ -6,9 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import static j2html.TagCreator.article;
 import static j2html.TagCreator.p;
@@ -25,28 +25,41 @@ public class ChatMenuView implements IChatMenuView {
 
     @Override
     public void receiveChannel(IChannel channel) {
-        try {
-            session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("channels", Collections.singleton(createHtmlLinkToChannel(channel.getChannelName())))));
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+        sendChannelLink(createHtmlLinkToChannel(channel.getChannelName()));
     }
     @Override
-    public void showChannelsList(List<String> channels) {
-        try {
-            session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("channels", channels.stream()
-                            .map(this::createHtmlLinkToChannel)
-                            .collect(Collectors.toList()))));
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+    public void showChannelsList(List<String> channelNames) {
+        channelNames.forEach((channel) -> sendChannelLink(createHtmlLinkToChannel(channel)));
+    }
+
+    private void sendChannelLink(String channelLink) {
+        Map<String, String> data = new HashMap<>();
+        data.put("type", "channel");
+        data.put("content", channelLink);
+        sendDataToClient(data);
     }
 
     private String createHtmlLinkToChannel(String channel) {
         String innerHTML = article().with(p(channel)).render();
-
         return String.format("<a class=nostyle href=\"/channel.html?channel=%s\">%s</a>", channel, innerHTML);
+    }
+
+    private void sendDataToClient(Map<String, String> data) {
+        JSONObject jsonObject = new JSONObject();
+        data.forEach((key, value) -> {
+            try {
+                jsonObject.put(key, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+
+        try {
+            if (session.isOpen() && !data.isEmpty()) {
+                session.getRemote().sendString(String.valueOf(jsonObject));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
