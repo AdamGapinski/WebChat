@@ -41,7 +41,8 @@ public class ChatMenuView implements IChatMenuView {
 
     private String createHtmlLinkToChannel(String channel) {
         String innerHTML = article().with(p(channel)).render();
-        return String.format("<a class=nostyle href=\"/channel.html?channel=%s\">%s</a>", channel, innerHTML);
+        return String.format("<a style=\"word-wrap: break-word\" class=\"list-group-item\" " +
+                "href=\"/channel.html?channel=%s\">%s</a>", channel, innerHTML);
     }
 
     private void sendDataToClient(Map<String, String> data) {

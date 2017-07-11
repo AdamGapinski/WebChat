@@ -13,16 +13,16 @@ function handleServerMessage(message) {
 }
 
 function showChannel(data) {
-    id("channels").insertAdjacentHTML("afterbegin", data.content);
+    id("channels").insertAdjacentHTML("afterbegin", "<b>" + data.content + "</b>");
 }
 
 function promptUsername() {
-    var user = getCookie("username");
-    while (user == null || user === "") {
-        user = prompt("Please enter your username: ", "username");
+    var username = getCookie("username");
+    while (username == null || username === "") {
+        username = prompt("Please enter your username: ", "username");
     }
-    setCookie("username", user);
-    id("username").insertAdjacentHTML("afterbegin", "<b>" + user + "</b>");
+    setCookie("username", username);
+    id("username").insertAdjacentHTML("beforeend", "<b>" + username + "</b>");
 }
 
 function setEventHandlers() {
