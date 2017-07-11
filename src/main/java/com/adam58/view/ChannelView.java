@@ -47,17 +47,14 @@ public class ChannelView implements IChannelView {
 
     private String createHtmlMessage(Message message) {
         ContainerTag result = article();
-
-        if (message.getSender().toLowerCase().equals("server")) {
-            result.withId("serversender");
-        }
-
+        String messageClass = message.getSender().toLowerCase().equals("server") ?
+                "list-group-item list-group-item-info" : "list-group-item";
         return result.with(
-                b(message.getSender() + " says:"),
+                b(message.getSender() + " says"),
                 p(message.getContent()),
-                span().withClass("timestamp")
-                        .withText(new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(message.getDatetime()))
-        ).render();
+                span().withText(new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(message.getDatetime()))
+                        .withClass("time")
+        ).withClass(messageClass).render();
     }
 
     @Override

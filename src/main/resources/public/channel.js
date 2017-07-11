@@ -22,7 +22,8 @@ function handleClientConnection () {
         type: "connection",
         channel : getParameterByName("channel"),
         username : getCookie("username")
-    })
+    });
+    id("channelname").insertAdjacentHTML("afterbegin", getParameterByName("channel"));
 }
 
 function showMessage(data) {
@@ -31,15 +32,15 @@ function showMessage(data) {
 
 function showUser(data) {
     if (data.currentUser == "true") {
-        id("userlist").insertAdjacentHTML("afterbegin", "<b><li>" + data.username + "</li></b>");
+        id("userlist").insertAdjacentHTML("afterbegin", "<li class=\"list-group-item\"><b>" + data.username + "</b></li>");
     } else {
-        id("userlist").insertAdjacentHTML("beforeend", "<li>" + data.username + "</li>");
+        id("userlist").insertAdjacentHTML("beforeend", "<li class=\"list-group-item\">" + data.username + "</li>");
     }
 }
 
 function removeUser(data) {
     var userList = id("userlist").innerHTML;
-    id("userlist").innerHTML = userList.replace("<li>" + data.username + "</li>", "");
+    id("userlist").innerHTML = userList.replace("<li class=\"list-group-item\">" + data.username + "</li>", "");
 }
 
 function sendMessageToServer(message) {
@@ -66,11 +67,6 @@ function setEventHandlers() {
     });
 
     id("leavechannel").addEventListener("click", function () {
-        sendObjectToServer({
-            type: "closed",
-            channel : getParameterByName("channel"),
-            username : getCookie("username")
-        });
         webSocket.close(1000);
         window.location.replace("http://" + location.hostname + ":" + location.port);
     });

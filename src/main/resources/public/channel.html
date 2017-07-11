@@ -1,20 +1,56 @@
-<!--index.html file modified. See README.rst-->
-
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WebsSockets</title>
-    <link rel="stylesheet" href="channel.css">
+    <title>WebChat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-<div id="chatControls">
-    <input id="message" placeholder="Type your message">
-    <button id="send">Send</button>
-    <button id="leavechannel">Leave channel</button>
-</div>
-<div id="userlist"></div>
-<div id="chat"></div>
-<script src="channel.js"></script>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a id="channelname" class="navbar-brand" href="#"></a>
+            </div>
+        </div>
+    </nav>
+    <div class="container" style="margin-top: 80px">
+        <div class="row">
+            <div class="col-xs-12 col-sm-2" style="margin-top: 30px">
+                <button id="leavechannel" class="btn btn-warning">Leave channel</button>
+            </div>
+            <div class="panel panel-default col-xs-12 col-sm-7" style="margin-top: 30px">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <input id="message" class="form-control" placeholder="Message">
+                    </div>
+                    <button id="send" class="btn btn-primary">Send</button>
+                    <br><br>
+                    <div id="chat" class="list-group"></div>
+                    <style>
+                        #chat .time {
+                            position: absolute;
+                            top: 4px;
+                            right: 8px;
+                            font-size: 11px;
+                            word-wrap: break-word;
+                        }
+                    </style>
+                </div>
+            </div>
+            <div class="hidden-xs col-sm-3">
+                <p>Users</p>
+                <ul id="userlist" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+    <script src="channel.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 </body>
 </html>
