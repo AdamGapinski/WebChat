@@ -43,11 +43,13 @@ public class ChannelViewTest {
         verify(remote, times(1)).sendString(captor.capture());
 
         String sent = captor.getValue();
-        assertThat(sent, allOf(containsString("message"),
-                containsString("{"),
+        assertThat(sent, allOf(containsString("{"),
                 containsString("}"),
-                containsString("message"),
-                containsString("<article>"),
+                containsString("\"type\":\"message\""),
+                containsString("\"message\":"),
+                containsString("<article"),
+                containsString("list-group-item"),
+                containsString("time"),
                 containsString("adam"),
                 containsString("welcome")));
     }
@@ -64,8 +66,11 @@ public class ChannelViewTest {
         for (int i = 0; i < messages.size(); i++) {
             assertThat(sentValues.get(i), allOf(containsString("{"),
                     containsString("}"),
-                    containsString("message"),
-                    containsString("<article>"),
+                    containsString("\"type\":\"message\""),
+                    containsString("\"message\":"),
+                    containsString("<article"),
+                    containsString("list-group-item"),
+                    containsString("time"),
                     containsString(messages.get(i).getSender()),
                     containsString(messages.get(i).getContent())));
         }

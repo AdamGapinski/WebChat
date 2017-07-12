@@ -48,6 +48,10 @@ public class ChatMenuViewTest {
 
             assertThat(sent, allOf(containsString("{"),
                     containsString("}"),
+                    containsString("\"type\":\"channel\""),
+                    containsString("\"content\":"),
+                    containsString("<a"),
+                    containsString("list-group-item"),
                     containsString("href="),
                     containsString("/channel.html?"),
                     containsString(String.format("channel=%s", channelName))));
@@ -64,6 +68,10 @@ public class ChatMenuViewTest {
         sentChannels.forEach(sent -> {
             assertThat(sent, allOf(containsString("{"),
                     containsString("}"),
+                    containsString("\"type\":\"channel\""),
+                    containsString("\"content\":"),
+                    containsString("<a"),
+                    containsString("list-group-item"),
                     containsString("href="),
                     containsString("/channel.html?")));
             assertThat(sent, anyOf(containsString("Test"),
