@@ -24,7 +24,7 @@ public class Main {
 
     private static void setStaticFileLocation() {
         String projectDir;
-        if ((projectDir = System.getProperty("user.dir")).contains("IdeaProjects")) {
+        if ((projectDir = System.getProperty("user.dir")).equals("/home/adam/IdeaProjects/WebChat/WebChat")) {
             String staticDir = "/src/main/resources/public";
             Spark.externalStaticFileLocation(projectDir + staticDir);
         } else {
